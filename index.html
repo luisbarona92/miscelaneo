@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>CROCS ALFA DADS</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   html, body {
     margin: 0; padding: 0; height: 100%;
@@ -17,8 +20,8 @@
     -webkit-touch-callout: none;
   }
   #game {
-    width: min(100vw, calc(100vh * 16 / 9));
-    height: auto;
+    /* tamaño base; el JS lo ajusta al viewport visible real (iOS Safari) */
+    width: min(100dvw, calc(100dvh * 16 / 9));
     aspect-ratio: 16 / 9;
     image-rendering: pixelated;
     box-shadow: 0 0 60px rgba(0,0,0,.8);
@@ -37,6 +40,20 @@
 const cv = document.getElementById("game");
 const ctx = cv.getContext("2d");
 const W = 800, H = 450;
+
+/* Ajuste al viewport VISIBLE real — en iOS Safari 100vh incluye el espacio
+   tras las barras del navegador y el canvas se cortaba en horizontal */
+function fitCanvas() {
+  const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const s = Math.min(vw / W, vh / H);
+  cv.style.width = Math.floor(W * s) + "px";
+  cv.style.height = Math.floor(H * s) + "px";
+}
+addEventListener("resize", fitCanvas);
+addEventListener("orientationchange", () => setTimeout(fitCanvas, 250));
+if (window.visualViewport) window.visualViewport.addEventListener("resize", fitCanvas);
+fitCanvas();
 const GROUND_Y = 410;
 const WORLD_W = 5000;
 const GRAV = 2200;
